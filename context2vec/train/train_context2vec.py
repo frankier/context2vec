@@ -72,6 +72,7 @@ def parse_arguments():
                         help='alpha param for Adam, controls the learning rate')
     parser.add_argument('--grad-clip', '-gc', default=None, type=float,
                         help='if specified, clip l2 of the gradient to this value')
+    parser.add_argument('--checkpoint', action='store_true')
     
     args = parser.parse_args()
     
@@ -164,6 +165,13 @@ for epoch in range(args.epoch):
             cur_at = now
             last_accum_loss = float(accum_loss)
             last_word_count = word_count
+
+    if args.checkpoint and epoch != args.epoch - 1:
+        if args.wordsfile != None:
+            dump_embeddings(args.wordsfile+'.check'+str(epoch)+'.targets', model.loss_func.W.data, target_word_units, reader.index2word)
+
+        if args.modelfile != None:
+            S.save_npz(args.modelfile+'.check'+str(epoch), model)
 
     print('accum words per epoch', word_count, 'accum_loss', accum_loss, 'accum_loss/word', accum_mean_loss)
     reader.close()
