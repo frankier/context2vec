@@ -73,6 +73,7 @@ def parse_arguments():
     parser.add_argument('--grad-clip', '-gc', default=None, type=float,
                         help='if specified, clip l2 of the gradient to this value')
     parser.add_argument('--checkpoint', action='store_true')
+    parser.add_argument('--resume-from', default=None)
     
     args = parser.parse_args()
     
@@ -122,6 +123,9 @@ if args.context == 'lstm':
     model = BiLstmContext(args.deep, args.gpu, reader.word2index, context_word_units, lstm_hidden_units, target_word_units, loss_func, True, args.dropout)
 else:
     raise Exception('Unknown context type: {}'.format(args.context))
+
+if args.resume_from:
+    S.load_npz(args.resume_from, model)
 
 optimizer = O.Adam(alpha=args.alpha)
 optimizer.setup(model)
